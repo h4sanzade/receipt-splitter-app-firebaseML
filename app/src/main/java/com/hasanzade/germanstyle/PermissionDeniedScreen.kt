@@ -1,5 +1,4 @@
-package com.hasanzade.germanstyle
-
+package com.hasanzade.germanstyle.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons

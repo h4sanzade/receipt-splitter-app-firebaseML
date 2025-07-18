@@ -1,5 +1,6 @@
 package com.hasanzade.germanstyle.utils
 
+import com.hasanzade.germanstyle.data.ReceiptItem
 
 object ValidationUtils {
 
@@ -7,7 +8,7 @@ object ValidationUtils {
         return name.isNotBlank() && name.length >= 2 && name.length <= 20
     }
 
-    fun isValidReceiptItem(item: com.hasanzade.germanstyle.data.ReceiptItem): Boolean {
+    fun isValidReceiptItem(item: ReceiptItem): Boolean {
         return item.name.isNotBlank() &&
                 item.quantity > 0 &&
                 item.unitPrice >= 0 &&

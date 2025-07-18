@@ -23,30 +23,45 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
     private val mlKitService = FirebaseMLKitService(application.applicationContext)
     private val textParser = ReceiptTextParser()
 
-    // Friend Management
+    // Friend Management - FIXED
     fun addFriend(name: String) {
         if (name.isNotBlank() && !_state.value.friends.contains(name)) {
-            _state.value.friends.add(name)
-            updateState()
+            val currentState = _state.value
+            val newFriends = currentState.friends.toMutableList()
+            newFriends.add(name)
+
+            _state.value = currentState.copy(friends = newFriends)
+            println("Friend added: $name, Total friends: ${_state.value.friends.size}")
         }
     }
 
     fun removeFriend(name: String) {
-        _state.value.friends.remove(name)
+        val currentState = _state.value
+        val newFriends = currentState.friends.toMutableList()
+        newFriends.remove(name)
+
         // Remove friend from all item assignments
-        _state.value.receiptItems.forEach { item ->
-            item.assignedFriends.remove(name)
-        }
-        updateState()
+        val updatedItems = currentState.receiptItems.map { item ->
+            item.copy(assignedFriends = item.assignedFriends.filter { it != name }.toMutableList())
+        }.toMutableList()
+
+        _state.value = currentState.copy(
+            friends = newFriends,
+            receiptItems = updatedItems
+        )
+        println("Friend removed: $name, Total friends: ${_state.value.friends.size}")
     }
 
-    // Receipt Processing
+    // Receipt Processing - ENHANCED
     fun processReceiptImage(imageUri: Uri) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isProcessing = true, errorMessage = null)
+            println("Processing image: $imageUri")
 
             mlKitService.extractTextFromImage(imageUri)
                 .onSuccess { extractedText ->
+                    println("Extracted text: $extractedText")
+
                     if (extractedText.isBlank()) {
                         _state.value = _state.value.copy(
                             isProcessing = false,
@@ -56,16 +71,27 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
                     }
 
                     val items = textParser.parseReceiptText(extractedText)
-                    _state.value.receiptItems.clear()
-                    _state.value.receiptItems.addAll(items)
+                    println("Parsed items count: ${items.size}")
+                    items.forEach { item ->
+                        println("Item: ${item.name}, Price: ${item.totalPrice}")
+                    }
 
-                    _state.value = _state.value.copy(
+                    val currentState = _state.value
+                    _state.value = currentState.copy(
+                        receiptItems = items.toMutableList(),
                         isProcessing = false,
                         currentStep = if (items.isNotEmpty()) Step.ASSIGN else Step.CAPTURE,
-                        errorMessage = if (items.isEmpty()) "No receipt items found. Please try again or check if the receipt is clearly visible." else null
+                        errorMessage = if (items.isEmpty()) {
+                            "No receipt items found. Try these tips:\n" +
+                                    "• Ensure good lighting\n" +
+                                    "• Hold camera steady\n" +
+                                    "• Make sure text is clear and readable\n" +
+                                    "• Try a closer shot of the itemized section"
+                        } else null
                     )
                 }
                 .onFailure { error ->
+                    println("ML Kit error: ${error.message}")
                     _state.value = _state.value.copy(
                         isProcessing = false,
                         errorMessage = "Error processing image: ${error.message ?: "Unknown error occurred"}"
@@ -76,9 +102,14 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
 
     // Item Assignment
     fun toggleFriendAssignment(itemId: String, friendName: String) {
-        val item = _state.value.receiptItems.find { it.id == itemId }
-        item?.toggleFriendAssignment(friendName)
-        updateState()
+        val currentState = _state.value
+        val updatedItems = currentState.receiptItems.map { item ->
+            if (item.id == itemId) {
+                item.copy().also { it.toggleFriendAssignment(friendName) }
+            } else item
+        }.toMutableList()
+
+        _state.value = currentState.copy(receiptItems = updatedItems)
     }
 
     // Calculations
@@ -110,6 +141,7 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
     // Navigation
     fun goToStep(step: Step) {
         _state.value = _state.value.copy(currentStep = step)
+        println("Navigating to step: $step")
     }
 
     fun goToNextStep() {
@@ -139,10 +171,6 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
 
     fun clearError() {
         _state.value = _state.value.copy(errorMessage = null)
-    }
-
-    private fun updateState() {
-        _state.value = _state.value.copy()
     }
 
     override fun onCleared() {
