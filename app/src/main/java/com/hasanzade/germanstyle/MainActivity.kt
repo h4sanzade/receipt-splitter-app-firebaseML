@@ -1,24 +1,22 @@
 package com.hasanzade.germanstyle
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.hasanzade.germanstyle.ui.theme.GermanStyleTheme
-import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
-
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
+import com.hasanzade.germanstyle.ui.theme.GermanStyleTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -28,14 +26,56 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MaterialTheme {
+            GermanStyleTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ReceiptSplitterApp(viewModel = viewModel)
+                    ReceiptSplitterAppWithPermissions(viewModel = viewModel)
                 }
             }
         }
     }
+}
+
+@Composable
+fun ReceiptSplitterAppWithPermissions(
+    viewModel: ReceiptSplitterViewModel,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasCameraPermission = isGranted
+        if (!isGranted) {
+            Toast.makeText(context, "Camera permission is required to scan receipts", Toast.LENGTH_LONG).show()
+        } else {
+            Toast.makeText(context, "Camera permission granted!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    ReceiptSplitterApp(
+        viewModel = viewModel,
+        hasCameraPermission = hasCameraPermission,
+        onRequestCameraPermission = {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        },
+        modifier = modifier
+    )
 }

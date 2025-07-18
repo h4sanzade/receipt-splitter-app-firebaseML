@@ -2,6 +2,7 @@ package com.hasanzade.germanstyle
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -24,21 +25,22 @@ class CameraManager(private val context: Context) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
         cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
-
-            val preview = Preview.Builder()
-                .build()
-                .also {
-                    it.setSurfaceProvider(previewView.surfaceProvider)
-                }
-
-            imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .build()
-
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
-
             try {
+                val cameraProvider = cameraProviderFuture.get()
+
+                val preview = Preview.Builder()
+                    .build()
+                    .also {
+                        it.setSurfaceProvider(previewView.surfaceProvider)
+                    }
+
+                imageCapture = ImageCapture.Builder()
+                    .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                    .setTargetRotation(previewView.display.rotation)
+                    .build()
+
+                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
@@ -46,9 +48,12 @@ class CameraManager(private val context: Context) {
                     preview,
                     imageCapture
                 )
+
+                Log.d("CameraManager", "Camera initialized successfully")
                 onCameraReady()
+
             } catch (exc: Exception) {
-                // Camera binding failed
+                Log.e("CameraManager", "Camera initialization failed", exc)
             }
         }, ContextCompat.getMainExecutor(context))
     }
@@ -57,7 +62,10 @@ class CameraManager(private val context: Context) {
         onImageCaptured: (Uri) -> Unit,
         onError: (String) -> Unit
     ) {
-        val imageCapture = imageCapture ?: return
+        val imageCapture = imageCapture ?: run {
+            onError("Camera not ready")
+            return
+        }
 
         val photoFile = File(
             context.cacheDir,
@@ -72,11 +80,14 @@ class CameraManager(private val context: Context) {
             object : ImageCapture.OnImageSavedCallback {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
+                    Log.d("CameraManager", "Photo saved successfully: $savedUri")
                     onImageCaptured(savedUri)
                 }
 
                 override fun onError(exception: ImageCaptureException) {
-                    onError("Photo capture failed: ${exception.message}")
+                    val errorMsg = "Photo capture failed: ${exception.message}"
+                    Log.e("CameraManager", errorMsg, exception)
+                    onError(errorMsg)
                 }
             }
         )

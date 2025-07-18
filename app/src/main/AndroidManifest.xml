@@ -2,33 +2,46 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- ========================= CAMERA PERMISSIONS ========================= -->
+    <!-- Main camera permission for taking receipt photos -->
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Camera hardware features -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
     <uses-feature
         android:name="android.hardware.camera.any"
         android:required="true" />
-
     <uses-feature
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
 
-
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <!-- ========================= STORAGE PERMISSIONS ========================= -->
+    <!-- For saving temporary receipt images -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"
         tools:ignore="ScopedStorage" />
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <!-- For reading image files -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
+
+    <!-- Android 13+ media permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
+    <!-- ========================= NETWORK PERMISSIONS ========================= -->
+    <!-- Required for Firebase ML Kit model downloads -->
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <!-- ========================= OPTIONAL PERMISSIONS ========================= -->
+    <!-- For haptic feedback (optional) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
-
+    <!-- ========================= APPLICATION ========================= -->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -37,18 +50,76 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GermanStyle">
+        android:theme="@style/Theme.GermanStyle"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true"
+        tools:targetApi="34">
+
+        <!-- ========================= MAIN ACTIVITY ========================= -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.GermanStyle">
+            android:theme="@style/Theme.GermanStyle"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="adjustResize">
+
+            <!-- Main launcher intent -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Optional: Handle sharing text to app -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
+            <!-- Optional: Handle sharing images to app -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
         </activity>
+
+        <!-- ========================= FILE PROVIDER ========================= -->
+        <!-- For secure file sharing (camera images) -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- ========================= FIREBASE ML KIT METADATA ========================= -->
+        <!-- Automatically download OCR model -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="ocr" />
+
+        <!-- Firebase Analytics (optional) -->
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="true" />
+
+        <!-- Firebase Crashlytics (optional) -->
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="true" />
+
+        <!-- ========================= CAMERA METADATA ========================= -->
+        <!-- Camera2 API support -->
+        <meta-data
+            android:name="android.hardware.camera2.supportlevel"
+            android:value="full" />
+
     </application>
 
 </manifest>

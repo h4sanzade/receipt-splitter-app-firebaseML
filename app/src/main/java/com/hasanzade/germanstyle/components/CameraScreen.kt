@@ -39,7 +39,10 @@ fun CameraScreen(
                     cameraManager.startCamera(
                         previewView = previewView,
                         lifecycleOwner = lifecycleOwner,
-                        onCameraReady = { isCameraReady = true }
+                        onCameraReady = {
+                            isCameraReady = true
+                            errorMessage = null
+                        }
                     )
                 }
             },
@@ -119,6 +122,29 @@ fun CameraScreen(
             }
         }
 
+        // Camera ready status
+        if (!isCameraReady && !isProcessing) {
+            Card(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text("Initializing camera...")
+                }
+            }
+        }
+
         // Capture Button
         FloatingActionButton(
             onClick = {
@@ -135,7 +161,10 @@ fun CameraScreen(
                 .align(Alignment.BottomCenter)
                 .padding(32.dp)
                 .size(72.dp),
-            containerColor = MaterialTheme.colorScheme.primary
+            containerColor = if (isCameraReady && !isProcessing)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
         ) {
             if (isProcessing) {
                 CircularProgressIndicator(
@@ -147,7 +176,11 @@ fun CameraScreen(
                 Icon(
                     Icons.Default.Camera,
                     contentDescription = "Capture Receipt",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(32.dp),
+                    tint = if (isCameraReady)
+                        MaterialTheme.colorScheme.onPrimary
+                    else
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
         }

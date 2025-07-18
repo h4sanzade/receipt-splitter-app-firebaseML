@@ -3,17 +3,14 @@ package com.hasanzade.germanstyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.hasanzade.germanstyle.components.AssignmentScreen
-import com.hasanzade.germanstyle.components.CameraScreen
-import com.hasanzade.germanstyle.components.ErrorDialog
-import com.hasanzade.germanstyle.components.FriendManagementScreen
-import com.hasanzade.germanstyle.components.ResultsScreen
+import com.hasanzade.germanstyle.components.*
 import com.hasanzade.germanstyle.data.Step
-
 
 @Composable
 fun ReceiptSplitterApp(
     viewModel: ReceiptSplitterViewModel,
+    hasCameraPermission: Boolean,
+    onRequestCameraPermission: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -31,18 +28,32 @@ fun ReceiptSplitterApp(
                 friends = state.friends,
                 onAddFriend = viewModel::addFriend,
                 onRemoveFriend = viewModel::removeFriend,
-                onNext = { viewModel.goToStep(Step.CAPTURE) },
+                onNext = {
+                    println("Camera button clicked - Going to CAPTURE step")
+                    viewModel.goToStep(Step.CAPTURE)
+                },
                 modifier = modifier
             )
         }
 
         Step.CAPTURE -> {
-            CameraScreen(
-                onImageCaptured = viewModel::processReceiptImage,
-                onBack = { viewModel.goToStep(Step.FRIENDS) },
-                isProcessing = state.isProcessing,
-                modifier = modifier
-            )
+            if (!hasCameraPermission) {
+                PermissionDeniedScreen(
+                    onRequestPermission = onRequestCameraPermission,
+                    onBack = { viewModel.goToStep(Step.FRIENDS) },
+                    modifier = modifier
+                )
+            } else {
+                CameraScreen(
+                    onImageCaptured = { uri ->
+                        println("Image captured: $uri")
+                        viewModel.processReceiptImage(uri)
+                    },
+                    onBack = { viewModel.goToStep(Step.FRIENDS) },
+                    isProcessing = state.isProcessing,
+                    modifier = modifier
+                )
+            }
         }
 
         Step.ASSIGN -> {
@@ -61,10 +72,11 @@ fun ReceiptSplitterApp(
                 personTotals = viewModel.calculateTotals(),
                 onBack = { viewModel.goToStep(Step.ASSIGN) },
                 onReset = viewModel::reset,
-                onShare = { /* TODO: Implement sharing */ },
+                onShare = {
+                    // TODO: Implement sharing functionality
+                },
                 modifier = modifier
             )
         }
     }
 }
-
