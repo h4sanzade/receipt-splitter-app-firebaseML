@@ -3,7 +3,7 @@ package com.hasanzade.germanstyle.utils
 object FormatUtils {
 
     fun formatCurrency(amount: Double): String {
-        return String.format("$%.2f", amount)
+        return String.format("₼%.2f", amount)
     }
 
     fun formatQuantity(quantity: Int): String {
