@@ -44,7 +44,6 @@ class FirebaseMLKitService(private val context: Context) {
         }
     }
 
-    // Alternative method for direct file path
     suspend fun extractTextFromFilePath(filePath: String): Result<String> {
         return try {
             val file = File(filePath)

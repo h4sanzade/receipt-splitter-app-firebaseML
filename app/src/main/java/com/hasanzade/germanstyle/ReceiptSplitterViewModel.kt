@@ -23,7 +23,6 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
     private val mlKitService = FirebaseMLKitService(application.applicationContext)
     private val textParser = ReceiptTextParser()
 
-    // Friend Management - FIXED
     fun addFriend(name: String) {
         if (name.isNotBlank() && !_state.value.friends.contains(name)) {
             val currentState = _state.value
@@ -40,7 +39,6 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
         val newFriends = currentState.friends.toMutableList()
         newFriends.remove(name)
 
-        // Remove friend from all item assignments
         val updatedItems = currentState.receiptItems.map { item ->
             item.copy(assignedFriends = item.assignedFriends.filter { it != name }.toMutableList())
         }.toMutableList()
@@ -52,7 +50,6 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
         println("Friend removed: $name, Total friends: ${_state.value.friends.size}")
     }
 
-    // Receipt Processing - ENHANCED
     fun processReceiptImage(imageUri: Uri) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isProcessing = true, errorMessage = null)
@@ -100,7 +97,6 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
         }
     }
 
-    // Item Assignment
     fun toggleFriendAssignment(itemId: String, friendName: String) {
         val currentState = _state.value
         val updatedItems = currentState.receiptItems.map { item ->
@@ -112,7 +108,6 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
         _state.value = currentState.copy(receiptItems = updatedItems)
     }
 
-    // Calculations
     fun calculateTotals(): List<PersonTotal> {
         val totals = mutableMapOf<String, Double>()
 
@@ -138,7 +133,6 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
             .sumOf { it.totalPrice }
     }
 
-    // Navigation
     fun goToStep(step: Step) {
         _state.value = _state.value.copy(currentStep = step)
         println("Navigating to step: $step")
@@ -164,7 +158,6 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
         goToStep(previousStep)
     }
 
-    // Reset
     fun reset() {
         _state.value = AppState()
     }

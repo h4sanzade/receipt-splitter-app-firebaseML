@@ -31,7 +31,6 @@ fun AssignmentScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Top Bar
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -53,7 +52,6 @@ fun AssignmentScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Assignment Instructions
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -69,7 +67,6 @@ fun AssignmentScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Items List
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -83,13 +80,11 @@ fun AssignmentScreen(
             }
         }
 
-        // Summary Card
         AssignmentSummaryCard(
             items = items,
             modifier = Modifier.padding(top = 16.dp)
         )
 
-        // Calculate Button
         Button(
             onClick = onCalculate,
             modifier = Modifier
@@ -117,13 +112,11 @@ fun ItemAssignmentCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // Item Name
             Text(
                 text = item.name,
                 style = MaterialTheme.typography.titleMedium
             )
 
-            // Item Details
             Text(
                 text = FormatUtils.formatItemDetails(item.quantity, item.unitPrice, item.totalPrice),
                 style = MaterialTheme.typography.bodyMedium,
@@ -132,7 +125,6 @@ fun ItemAssignmentCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Assign to Friends
             Text(
                 text = "Assign to:",
                 style = MaterialTheme.typography.labelMedium
@@ -152,7 +144,6 @@ fun ItemAssignmentCard(
                 }
             }
 
-            // Split Information
             if (item.assignedFriends.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Card(

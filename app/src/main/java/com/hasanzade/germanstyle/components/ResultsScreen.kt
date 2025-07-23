@@ -30,7 +30,6 @@ fun ResultsScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Top Bar
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -58,7 +57,6 @@ fun ResultsScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (personTotals.isEmpty()) {
-            // Empty State
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -83,7 +81,6 @@ fun ResultsScreen(
                 }
             }
         } else {
-            // Results List
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -93,7 +90,6 @@ fun ResultsScreen(
                 }
             }
 
-            // Total Summary
             val grandTotal = personTotals.sumOf { it.amount }
             Card(
                 modifier = Modifier
@@ -123,7 +119,6 @@ fun ResultsScreen(
             }
         }
 
-        // Action Buttons
         Row(
             modifier = Modifier
                 .fillMaxWidth()

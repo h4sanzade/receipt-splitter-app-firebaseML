@@ -49,7 +49,6 @@ fun CameraScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Top Bar
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -87,7 +86,6 @@ fun CameraScreen(
             }
         }
 
-        // Instructions
         Card(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -103,7 +101,6 @@ fun CameraScreen(
             )
         }
 
-        // Error Message
         errorMessage?.let { error ->
             Card(
                 modifier = Modifier

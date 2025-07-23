@@ -24,7 +24,6 @@ fun PermissionDeniedScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Top Bar
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Start
@@ -36,7 +35,6 @@ fun PermissionDeniedScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // Permission Content
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(

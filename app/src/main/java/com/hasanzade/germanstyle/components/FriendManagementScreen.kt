@@ -48,7 +48,6 @@ fun FriendManagementScreen(
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Add Friend Section
         Card(
             modifier = Modifier.fillMaxWidth(),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -105,7 +104,6 @@ fun FriendManagementScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Friends List Section
         if (friends.isNotEmpty()) {
             Text(
                 text = "Friends Added (${friends.size})",
@@ -126,7 +124,6 @@ fun FriendManagementScreen(
                 }
             }
         } else {
-            // Empty State
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -167,7 +164,6 @@ fun FriendManagementScreen(
             }
         }
 
-        // Continue to Camera Button - ALWAYS VISIBLE
         Spacer(modifier = Modifier.height(16.dp))
 
         Column {

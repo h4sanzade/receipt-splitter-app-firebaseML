@@ -36,7 +36,7 @@ class ReceiptTextParser {
         // Pattern 11: "Ayran 3.50 AZN" (with AZN)
         Regex("""^(.+?)\s+(\d+[.,]\d{2})\s*AZN?$"""),
 
-        // Pattern 12: "Lentil Soup ₼8.50" (with manat symbol)
+        // Pattern 12: "Lentil Soup ₼8.50"
         Regex("""^(.+?)\s+₼(\d+[.,]\d{2})$""")
     )
 
@@ -52,14 +52,12 @@ class ReceiptTextParser {
         lines.forEachIndexed { index, line ->
             val cleanLine = line.trim()
 
-            // Skip empty or very short lines
             if (cleanLine.isEmpty() || cleanLine.length < 3) {
                 return@forEachIndexed
             }
 
             println("Line $index: '$cleanLine'")
 
-            // Check for non-item lines (headers, totals, tax, etc.)
             if (isNonItemLine(cleanLine)) {
                 println("  -> Skipped: non-item line")
                 return@forEachIndexed
@@ -77,7 +75,6 @@ class ReceiptTextParser {
         println("PARSING COMPLETED")
         println("Total items found: ${items.size}")
 
-        // If no items found, try alternative parsing approaches
         if (items.isEmpty()) {
             println("No items found with patterns, trying alternative parsing...")
             val alternativeItems = tryAlternativeParsing(text)
@@ -96,7 +93,6 @@ class ReceiptTextParser {
                     println("    Pattern $patternIndex matched: $groups")
 
                     when (patternIndex) {
-                        // Pattern 6, 7, 8, 11, 12: Name and total price only
                         5, 6, 7, 10, 11 -> {
                             val itemName = cleanItemName(groups[1])
                             val totalPrice = parsePrice(groups[2])
@@ -110,8 +106,6 @@ class ReceiptTextParser {
                                 )
                             } else null
                         }
-
-                        // Pattern 10: Portion specification
                         9 -> {
                             val itemName = cleanItemName(groups[1])
                             val quantity = groups[2].toIntOrNull() ?: 1
@@ -128,7 +122,6 @@ class ReceiptTextParser {
                             } else null
                         }
 
-                        // Pattern 3: Quantity first
                         2 -> {
                             val quantity = groups[1].toIntOrNull() ?: 1
                             val itemName = cleanItemName(groups[2])
@@ -144,8 +137,6 @@ class ReceiptTextParser {
                                 )
                             } else null
                         }
-
-                        // Other patterns: Standard format (name, quantity, unit price, total)
                         else -> {
                             val itemName = cleanItemName(groups[1])
                             val quantity = groups[2].toIntOrNull() ?: 1
@@ -227,7 +218,7 @@ class ReceiptTextParser {
 
     private fun parsePrice(priceStr: String): Double {
         return try {
-            priceStr.replace(",", ".") // Handle comma as decimal separator
+            priceStr.replace(",", ".")
                 .replace(Regex("""[^\d.]"""), "") // Remove non-digit/dot characters
                 .toDoubleOrNull() ?: 0.0
         } catch (e: Exception) {
@@ -241,7 +232,7 @@ class ReceiptTextParser {
 
         println("Trying alternative parsing methods...")
 
-        // Method 1: Look for any line with price patterns
+        // Look for any line with price patterns
         val pricePattern = Regex("""(\d+[.,]\d{2})""")
 
         lines.forEach { line ->
@@ -270,7 +261,7 @@ class ReceiptTextParser {
             }
         }
 
-        // Method 2: If still no items, create meaningful sample based on text length
+        //If still no items, create meaningful sample based on text length
         if (items.isEmpty() && text.isNotBlank()) {
             println("Creating sample items for testing purposes...")
             items.addAll(createMeaningfulSamples(text))

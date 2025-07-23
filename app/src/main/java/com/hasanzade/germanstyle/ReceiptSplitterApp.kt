@@ -1,5 +1,6 @@
 package com.hasanzade.germanstyle
 
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -15,13 +16,11 @@ fun ReceiptSplitterApp(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    // Error Dialog
     ErrorDialog(
         errorMessage = state.errorMessage,
         onDismiss = viewModel::clearError
     )
 
-    // Main Content
     when (state.currentStep) {
         Step.FRIENDS -> {
             FriendManagementScreen(
@@ -29,7 +28,8 @@ fun ReceiptSplitterApp(
                 onAddFriend = viewModel::addFriend,
                 onRemoveFriend = viewModel::removeFriend,
                 onNext = {
-                    println("Camera button clicked - Going to CAPTURE step")
+                    Log.d("ReceiptSplitterAppTAG", "Camera button clicked - Going to CAPTURE step")
+
                     viewModel.goToStep(Step.CAPTURE)
                 },
                 modifier = modifier
@@ -46,7 +46,8 @@ fun ReceiptSplitterApp(
             } else {
                 CameraScreen(
                     onImageCaptured = { uri ->
-                        println("Image captured: $uri")
+                        Log.d("ReceiptSplitterAppTAG", "Image captured: $uri")
+
                         viewModel.processReceiptImage(uri)
                     },
                     onBack = { viewModel.goToStep(Step.FRIENDS) },
@@ -73,7 +74,6 @@ fun ReceiptSplitterApp(
                 onBack = { viewModel.goToStep(Step.ASSIGN) },
                 onReset = viewModel::reset,
                 onShare = {
-                    // TODO: Implement sharing functionality
                 },
                 modifier = modifier
             )
