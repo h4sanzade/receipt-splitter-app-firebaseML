@@ -2,14 +2,13 @@ package com.hasanzade.germanstyle
 
 import android.app.Application
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.hasanzade.germanstyle.ai.GeminiService
 import com.hasanzade.germanstyle.data.AppState
 import com.hasanzade.germanstyle.data.PersonTotal
 import com.hasanzade.germanstyle.data.Step
-import com.hasanzade.germanstyle.ml.FirebaseMLKitService
-import com.hasanzade.germanstyle.parser.ReceiptTextParser
-
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,11 +16,14 @@ import kotlinx.coroutines.launch
 
 class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(application) {
 
+    companion object {
+        private const val TAG = "ReceiptSplitterViewModel"
+    }
+
     private val _state = MutableStateFlow(AppState())
     val state: StateFlow<AppState> = _state.asStateFlow()
 
-    private val mlKitService = FirebaseMLKitService(application.applicationContext)
-    private val textParser = ReceiptTextParser()
+    private val geminiService = GeminiService(application.applicationContext)
 
     fun addFriend(name: String) {
         if (name.isNotBlank() && !_state.value.friends.contains(name)) {
@@ -30,7 +32,7 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
             newFriends.add(name)
 
             _state.value = currentState.copy(friends = newFriends)
-            println("Friend added: $name, Total friends: ${_state.value.friends.size}")
+            Log.d(TAG, "Friend added: $name, Total friends: ${_state.value.friends.size}")
         }
     }
 
@@ -47,53 +49,76 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
             friends = newFriends,
             receiptItems = updatedItems
         )
-        println("Friend removed: $name, Total friends: ${_state.value.friends.size}")
+        Log.d(TAG, "Friend removed: $name, Total friends: ${_state.value.friends.size}")
     }
 
     fun processReceiptImage(imageUri: Uri) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isProcessing = true, errorMessage = null)
-            println("Processing image: $imageUri")
+            try {
+                _state.value = _state.value.copy(
+                    isProcessing = true,
+                    errorMessage = null,
+                    processingStatus = "Analyzing receipt with Gemini AI..."
+                )
 
-            mlKitService.extractTextFromImage(imageUri)
-                .onSuccess { extractedText ->
-                    println("Extracted text: $extractedText")
+                Log.d(TAG, "Processing image with Gemini: $imageUri")
 
-                    if (extractedText.isBlank()) {
+                _state.value = _state.value.copy(
+                    processingStatus = "Processing image..."
+                )
+
+                geminiService.extractReceiptData(imageUri)
+                    .onSuccess { items ->
+                        Log.d(TAG, "Gemini successfully extracted ${items.size} items")
+
+                        _state.value = _state.value.copy(
+                            processingStatus = "Analysis completed!"
+                        )
+
+                        if (items.isNotEmpty()) {
+                            items.forEach { item ->
+                                Log.d(TAG, "Item: ${item.name}, Qty: ${item.quantity}, Unit: ${item.unit_price} AZN, Total: ${item.total_price} AZN")
+                            }
+
+                            _state.value = _state.value.copy(
+                                receiptItems = items.toMutableList(),
+                                isProcessing = false,
+                                currentStep = Step.ASSIGN,
+                                processingStatus = ""
+                            )
+                        } else {
+                            _state.value = _state.value.copy(
+                                isProcessing = false,
+                                processingStatus = "",
+                                errorMessage = "Gemini AI couldn't find any items in the receipt. Please try:\n" +
+                                        "• Better lighting\n" +
+                                        "• Keep camera steady\n" +
+                                        "• Ensure entire receipt is in frame\n" +
+                                        "• Take closer shot of items section"
+                            )
+                        }
+                    }
+                    .onFailure { error ->
+                        Log.e(TAG, "Gemini processing failed", error)
                         _state.value = _state.value.copy(
                             isProcessing = false,
-                            errorMessage = "No text found in the image. Please try again with a clearer receipt."
+                            processingStatus = "",
+                            errorMessage = "Error processing with Gemini AI: ${error.message ?: "Unknown error"}\n\n" +
+                                    "Please check:\n" +
+                                    "• Internet connection\n" +
+                                    "• Image quality\n" +
+                                    "• API key configuration"
                         )
-                        return@onSuccess
                     }
 
-                    val items = textParser.parseReceiptText(extractedText)
-                    println("Parsed items count: ${items.size}")
-                    items.forEach { item ->
-                        println("Item: ${item.name}, Price: ${item.totalPrice}")
-                    }
-
-                    val currentState = _state.value
-                    _state.value = currentState.copy(
-                        receiptItems = items.toMutableList(),
-                        isProcessing = false,
-                        currentStep = if (items.isNotEmpty()) Step.ASSIGN else Step.CAPTURE,
-                        errorMessage = if (items.isEmpty()) {
-                            "No receipt items found. Try these tips:\n" +
-                                    "• Ensure good lighting\n" +
-                                    "• Hold camera steady\n" +
-                                    "• Make sure text is clear and readable\n" +
-                                    "• Try a closer shot of the itemized section"
-                        } else null
-                    )
-                }
-                .onFailure { error ->
-                    println("ML Kit error: ${error.message}")
-                    _state.value = _state.value.copy(
-                        isProcessing = false,
-                        errorMessage = "Error processing image: ${error.message ?: "Unknown error occurred"}"
-                    )
-                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Unexpected error in processReceiptImage", e)
+                _state.value = _state.value.copy(
+                    isProcessing = false,
+                    processingStatus = "",
+                    errorMessage = "Unexpected error: ${e.message}"
+                )
+            }
         }
     }
 
@@ -106,6 +131,7 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
         }.toMutableList()
 
         _state.value = currentState.copy(receiptItems = updatedItems)
+        Log.d(TAG, "Toggled assignment: $friendName to item $itemId")
     }
 
     fun calculateTotals(): List<PersonTotal> {
@@ -124,42 +150,23 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
     }
 
     fun getReceiptTotal(): Double {
-        return _state.value.receiptItems.sumOf { it.totalPrice }
+        return _state.value.receiptItems.sumOf { it.total_price }
     }
 
     fun getAssignedTotal(): Double {
         return _state.value.receiptItems
             .filter { it.assignedFriends.isNotEmpty() }
-            .sumOf { it.totalPrice }
+            .sumOf { it.total_price }
     }
 
     fun goToStep(step: Step) {
         _state.value = _state.value.copy(currentStep = step)
-        println("Navigating to step: $step")
-    }
-
-    fun goToNextStep() {
-        val nextStep = when (_state.value.currentStep) {
-            Step.FRIENDS -> Step.CAPTURE
-            Step.CAPTURE -> Step.ASSIGN
-            Step.ASSIGN -> Step.CALCULATE
-            Step.CALCULATE -> Step.FRIENDS
-        }
-        goToStep(nextStep)
-    }
-
-    fun goToPreviousStep() {
-        val previousStep = when (_state.value.currentStep) {
-            Step.FRIENDS -> Step.FRIENDS
-            Step.CAPTURE -> Step.FRIENDS
-            Step.ASSIGN -> Step.CAPTURE
-            Step.CALCULATE -> Step.ASSIGN
-        }
-        goToStep(previousStep)
+        Log.d(TAG, "Navigating to step: $step")
     }
 
     fun reset() {
         _state.value = AppState()
+        Log.d(TAG, "App state reset")
     }
 
     fun clearError() {
@@ -168,6 +175,6 @@ class ReceiptSplitterViewModel(application: Application) : AndroidViewModel(appl
 
     override fun onCleared() {
         super.onCleared()
-        mlKitService.closeRecognizer()
+        Log.d(TAG, "ViewModel cleared")
     }
 }

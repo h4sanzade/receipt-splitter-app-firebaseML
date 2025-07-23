@@ -33,7 +33,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <!-- ========================= NETWORK PERMISSIONS ========================= -->
-    <!-- Required for Firebase ML Kit model downloads -->
+    <!-- Required for Firebase AI Logic (Gemini API) -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -98,12 +98,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- ========================= FIREBASE ML KIT METADATA ========================= -->
-        <!-- Automatically download OCR model -->
-        <meta-data
-            android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="ocr" />
-
+        <!-- ========================= FIREBASE AI LOGIC METADATA ========================= -->
         <!-- Firebase Analytics (optional) -->
         <meta-data
             android:name="firebase_analytics_collection_enabled"

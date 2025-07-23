@@ -5,7 +5,8 @@ data class AppState(
     val receiptItems: List<ReceiptItem> = emptyList(),
     val isProcessing: Boolean = false,
     val currentStep: Step = Step.FRIENDS,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val processingStatus: String = ""
 )
 
 enum class Step {

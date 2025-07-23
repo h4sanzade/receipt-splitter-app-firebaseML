@@ -64,7 +64,7 @@ fun PermissionDeniedScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "To scan receipts and extract item information, we need access to your camera.",
+                    text = "To scan receipts with Gemini AI and extract item information, we need access to your camera.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     textAlign = TextAlign.Center

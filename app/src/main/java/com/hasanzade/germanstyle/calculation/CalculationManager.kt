@@ -10,7 +10,7 @@ class CalculationManager {
 
         items.forEach { item ->
             if (item.assignedFriends.isNotEmpty()) {
-                val amountPerPerson = item.totalPrice / item.assignedFriends.size
+                val amountPerPerson = item.total_price / item.assignedFriends.size
                 item.assignedFriends.forEach { friend ->
                     totals[friend] = totals.getOrDefault(friend, 0.0) + amountPerPerson
                 }
@@ -23,8 +23,8 @@ class CalculationManager {
     }
 
     fun getReceiptSummary(items: List<ReceiptItem>): ReceiptSummary {
-        val totalAmount = items.sumOf { it.totalPrice }
-        val assignedAmount = items.filter { it.assignedFriends.isNotEmpty() }.sumOf { it.totalPrice }
+        val totalAmount = items.sumOf { it.total_price }
+        val assignedAmount = items.filter { it.assignedFriends.isNotEmpty() }.sumOf { it.total_price }
         val unassignedAmount = totalAmount - assignedAmount
         val totalItems = items.size
         val assignedItems = items.count { it.assignedFriends.isNotEmpty() }

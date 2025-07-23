@@ -1,6 +1,5 @@
 package com.hasanzade.germanstyle.components
 
-
 import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -12,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.camera.view.PreviewView
@@ -23,6 +23,7 @@ fun CameraScreen(
     onImageCaptured: (Uri) -> Unit,
     onBack: () -> Unit,
     isProcessing: Boolean,
+    processingStatus: String,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -49,6 +50,7 @@ fun CameraScreen(
             modifier = Modifier.fillMaxSize()
         )
 
+        // Top Controls
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -65,27 +67,33 @@ fun CameraScreen(
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back")
             }
 
-            if (isProcessing) {
+            if (isProcessing && processingStatus.isNotEmpty()) {
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f)
                     )
                 ) {
                     Row(
-                        modifier = Modifier.padding(8.dp),
+                        modifier = Modifier.padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Processing...")
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = processingStatus,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
                     }
                 }
             }
         }
 
+        // Instructions Card
         Card(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -94,13 +102,25 @@ fun CameraScreen(
                 containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
             )
         ) {
-            Text(
-                text = "Position the receipt in the frame and tap the camera button",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(12.dp)
-            )
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Gemini AI Receipt Scanner",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Position the receipt in the frame and tap the camera button",
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
 
+        // Error Message
         errorMessage?.let { error ->
             Card(
                 modifier = Modifier
@@ -119,11 +139,10 @@ fun CameraScreen(
             }
         }
 
-        // Camera ready status
+        // Camera Ready Status
         if (!isCameraReady && !isProcessing) {
             Card(
-                modifier = Modifier
-                    .align(Alignment.Center),
+                modifier = Modifier.align(Alignment.Center),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
                 )
@@ -142,7 +161,7 @@ fun CameraScreen(
             }
         }
 
-        // Capture Button
+        // Enhanced Capture Button
         FloatingActionButton(
             onClick = {
                 if (isCameraReady && !isProcessing) {

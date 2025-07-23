@@ -58,9 +58,9 @@ fun ReceiptSplitterAppWithPermissions(
     ) { isGranted ->
         hasCameraPermission = isGranted
         if (!isGranted) {
-            Toast.makeText(context, "Camera permission is required to scan receipts", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Camera permission is required to scan receipts with AI", Toast.LENGTH_LONG).show()
         } else {
-            Toast.makeText(context, "Camera permission granted!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Camera permission granted! Ready for AI scanning", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -28,8 +28,7 @@ fun ReceiptSplitterApp(
                 onAddFriend = viewModel::addFriend,
                 onRemoveFriend = viewModel::removeFriend,
                 onNext = {
-                    Log.d("ReceiptSplitterAppTAG", "Camera button clicked - Going to CAPTURE step")
-
+                    Log.d("ReceiptSplitterApp", "AI Scanner button clicked - Going to CAPTURE step")
                     viewModel.goToStep(Step.CAPTURE)
                 },
                 modifier = modifier
@@ -46,12 +45,12 @@ fun ReceiptSplitterApp(
             } else {
                 CameraScreen(
                     onImageCaptured = { uri ->
-                        Log.d("ReceiptSplitterAppTAG", "Image captured: $uri")
-
+                        Log.d("ReceiptSplitterApp", "Image captured for Gemini AI: $uri")
                         viewModel.processReceiptImage(uri)
                     },
                     onBack = { viewModel.goToStep(Step.FRIENDS) },
                     isProcessing = state.isProcessing,
+                    processingStatus = state.processingStatus,
                     modifier = modifier
                 )
             }
@@ -74,6 +73,7 @@ fun ReceiptSplitterApp(
                 onBack = { viewModel.goToStep(Step.ASSIGN) },
                 onReset = viewModel::reset,
                 onShare = {
+                    // TODO: Implement sharing functionality
                 },
                 modifier = modifier
             )

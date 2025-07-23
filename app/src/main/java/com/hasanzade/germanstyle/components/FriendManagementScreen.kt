@@ -34,7 +34,7 @@ fun FriendManagementScreen(
     ) {
         // Header
         Text(
-            text = "Receipt Splitter",
+            text = "AI Receipt Splitter",
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -42,7 +42,7 @@ fun FriendManagementScreen(
         )
 
         Text(
-            text = "Add friends to split the bill with",
+            text = "Add friends to split the bill with AI-powered receipt scanning",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 24.dp)
@@ -174,13 +174,13 @@ fun FriendManagementScreen(
                 ) {
                     Icon(Icons.Default.CameraAlt, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Skip and Go to Camera")
+                    Text("Skip and Go to AI Scanner")
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "You can add friends later after scanning the receipt",
+                    text = "You can add friends later after scanning the receipt with Gemini AI",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp)
@@ -192,7 +192,7 @@ fun FriendManagementScreen(
                 ) {
                     Icon(Icons.Default.CameraAlt, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Continue to Camera")
+                    Text("Continue to AI Scanner")
                 }
             }
         }
@@ -225,7 +225,7 @@ fun FriendListItem(
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = "Ready to split bills",
+                    text = "Ready to split bills with AI",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

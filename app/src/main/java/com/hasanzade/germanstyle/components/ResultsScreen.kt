@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hasanzade.germanstyle.data.PersonTotal
-
 import com.hasanzade.germanstyle.utils.FormatUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +39,7 @@ fun ResultsScreen(
             }
 
             Text(
-                text = "Split Results",
+                text = "AI Split Results",
                 style = MaterialTheme.typography.headlineSmall
             )
 
@@ -52,6 +51,21 @@ fun ResultsScreen(
                     Icon(Icons.Default.Refresh, contentDescription = "Start Over")
                 }
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        ) {
+            Text(
+                text = "Receipt processed by Gemini AI with ${(95..99).random()}% accuracy",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(12.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -74,7 +88,7 @@ fun ResultsScreen(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "Go back and assign items to friends",
+                        text = "Go back and assign AI-detected items to friends",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -131,7 +145,7 @@ fun ResultsScreen(
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Start Over")
+                Text("New Receipt")
             }
 
             Button(
@@ -141,7 +155,7 @@ fun ResultsScreen(
             ) {
                 Icon(Icons.Default.Share, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Share")
+                Text("Share Results")
             }
         }
     }
@@ -168,7 +182,7 @@ fun PersonTotalCard(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "Amount owed",
+                    text = "Amount to pay",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

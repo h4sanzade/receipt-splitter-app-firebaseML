@@ -11,8 +11,8 @@ object ValidationUtils {
     fun isValidReceiptItem(item: ReceiptItem): Boolean {
         return item.name.isNotBlank() &&
                 item.quantity > 0 &&
-                item.unitPrice >= 0 &&
-                item.totalPrice >= 0
+                item.unit_price >= 0 &&
+                item.total_price >= 0
     }
 
     fun getFriendNameError(name: String): String? {

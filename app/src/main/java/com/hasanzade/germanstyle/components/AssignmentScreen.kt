@@ -1,6 +1,5 @@
 package com.hasanzade.germanstyle.components
 
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -41,7 +40,7 @@ fun AssignmentScreen(
             }
 
             Text(
-                text = "Assign Items to Friends",
+                text = "AI-Extracted Items",
                 style = MaterialTheme.typography.headlineSmall
             )
 
@@ -58,11 +57,19 @@ fun AssignmentScreen(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
             )
         ) {
-            Text(
-                text = "Tap on friend names to assign items. Items can be shared among multiple friends.",
-                style = MaterialTheme.typography.bodyMedium,
+            Column(
                 modifier = Modifier.padding(12.dp)
-            )
+            ) {
+                Text(
+                    text = "Gemini AI Successfully Extracted ${items.size} Items",
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = "Tap on friend names to assign items. Items can be shared among multiple friends.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -94,7 +101,7 @@ fun AssignmentScreen(
         ) {
             Icon(Icons.Default.Calculate, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Calculate Totals")
+            Text("Calculate Split")
         }
     }
 }
@@ -112,13 +119,33 @@ fun ItemAssignmentCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Text(
-                text = item.name,
-                style = MaterialTheme.typography.titleMedium
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(
+                        text = "AI Detected",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
 
             Text(
-                text = FormatUtils.formatItemDetails(item.quantity, item.unitPrice, item.totalPrice),
+                text = FormatUtils.formatItemDetails(item.quantity, item.unit_price, item.total_price),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -152,7 +179,7 @@ fun ItemAssignmentCard(
                     )
                 ) {
                     Text(
-                        text = FormatUtils.formatSplitInfo(item.assignedFriends.size, item.totalPrice),
+                        text = FormatUtils.formatSplitInfo(item.assignedFriends.size, item.total_price),
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(8.dp)
                     )
@@ -167,8 +194,8 @@ fun AssignmentSummaryCard(
     items: List<ReceiptItem>,
     modifier: Modifier = Modifier
 ) {
-    val totalAmount = items.sumOf { it.totalPrice }
-    val assignedAmount = items.filter { it.assignedFriends.isNotEmpty() }.sumOf { it.totalPrice }
+    val totalAmount = items.sumOf { it.total_price }
+    val assignedAmount = items.filter { it.assignedFriends.isNotEmpty() }.sumOf { it.total_price }
     val unassignedAmount = totalAmount - assignedAmount
 
     Card(
@@ -183,6 +210,12 @@ fun AssignmentSummaryCard(
         Column(
             modifier = Modifier.padding(12.dp)
         ) {
+            Text(
+                text = "AI-Extracted Receipt Summary",
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween

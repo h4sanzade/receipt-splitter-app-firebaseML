@@ -1,12 +1,14 @@
 package com.hasanzade.germanstyle.data
 
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ReceiptItem(
     val id: String = java.util.UUID.randomUUID().toString(),
     val name: String,
-    val quantity: Int,
-    val unitPrice: Double,
-    val totalPrice: Double,
+    val quantity: Int = 1,
+    val unit_price: Double,
+    val total_price: Double,
     val assignedFriends: MutableList<String> = mutableListOf()
 ) {
     fun isAssignedTo(friendName: String): Boolean {
@@ -23,7 +25,7 @@ data class ReceiptItem(
 
     fun getAmountPerPerson(): Double {
         return if (assignedFriends.isNotEmpty()) {
-            totalPrice / assignedFriends.size
+            total_price / assignedFriends.size
         } else {
             0.0
         }
