@@ -63,7 +63,6 @@ fun ReceiptSplitterApp(
                 onToggleAssignment = viewModel::toggleFriendAssignment,
                 onCalculate = { viewModel.goToStep(Step.CALCULATE) },
                 onBack = { viewModel.goToStep(Step.CAPTURE) },
-                modifier = modifier
             )
         }
 
@@ -73,7 +72,6 @@ fun ReceiptSplitterApp(
                 onBack = { viewModel.goToStep(Step.ASSIGN) },
                 onReset = viewModel::reset,
                 onShare = {
-                    // TODO: Implement sharing functionality
                 },
                 modifier = modifier
             )

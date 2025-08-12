@@ -17,8 +17,7 @@ class GeminiService(private val context: Context) {
 
     companion object {
         private const val TAG = "GeminiService"
-        // You need to add your Gemini API key here
-        private const val API_KEY = "AIzaSyBM32AFzt-kL6MRKyKwBxHjXpGBwJetqow"
+        private const val API_KEY = "AIzaSyCBs1cdQvFgMcf1F0hzd0fGvUDu5I-AI24"
         private const val MODEL_NAME = "gemini-1.5-flash"
     }
 
@@ -161,7 +160,6 @@ Remember: Be specific with actual product names, not generic placeholders.
     private fun createFallbackItems(responseText: String): List<ReceiptItem> {
         Log.w(TAG, "Using fallback parsing method")
 
-        // Try to extract actual food names from the text using common patterns
         val foodKeywords = listOf(
             "kebab", "pizza", "burger", "sandwich", "salad", "soup", "pasta", "rice",
             "chicken", "beef", "fish", "lamb", "doner", "shawarma", "lahmacun",
@@ -185,7 +183,6 @@ Remember: Be specific with actual product names, not generic placeholders.
                         .replace(Regex("""[x@=\-+]"""), "")
                         .trim()
 
-                    // If name is too short or generic, try to find a food keyword
                     if (itemName.length < 3) {
                         val foundKeyword = foodKeywords.find { keyword ->
                             line.lowercase().contains(keyword)
@@ -210,7 +207,6 @@ Remember: Be specific with actual product names, not generic placeholders.
             }
         }
 
-        // If still no items found, create meaningful sample items
         if (items.isEmpty()) {
             val sampleItems = listOf(
                 "Chicken Kebab" to 15.50,

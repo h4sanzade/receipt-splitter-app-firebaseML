@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.hasanzade.germanstyle.components.ErrorDialog
 import com.hasanzade.germanstyle.ui.theme.GermanStyleTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,23 +26,30 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        if (savedInstanceState != null) {
+            viewModel.reset()
+        }
+
         setContent {
             GermanStyleTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ReceiptSplitterAppWithPermissions(viewModel = viewModel)
+                    ReceiptSplitterAppWithNavigation(viewModel = viewModel)
                 }
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+    }
 }
 
 @Composable
-fun ReceiptSplitterAppWithPermissions(
-    viewModel: ReceiptSplitterViewModel,
-    modifier: Modifier = Modifier
+fun ReceiptSplitterAppWithNavigation(
+    viewModel: ReceiptSplitterViewModel
 ) {
     val context = LocalContext.current
     var hasCameraPermission by remember {
@@ -58,9 +66,17 @@ fun ReceiptSplitterAppWithPermissions(
     ) { isGranted ->
         hasCameraPermission = isGranted
         if (!isGranted) {
-            Toast.makeText(context, "Camera permission is required to scan receipts with AI", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                "Camera permission is required to scan receipts",
+                Toast.LENGTH_LONG
+            ).show()
         } else {
-            Toast.makeText(context, "Camera permission granted! Ready for AI scanning", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                "Camera permission granted! Ready for scanning",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -70,12 +86,12 @@ fun ReceiptSplitterAppWithPermissions(
         }
     }
 
-    ReceiptSplitterApp(
-        viewModel = viewModel,
-        hasCameraPermission = hasCameraPermission,
-        onRequestCameraPermission = {
-            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-        },
-        modifier = modifier
+    val state by viewModel.state.collectAsState()
+
+    ErrorDialog(
+        errorMessage = state.errorMessage,
+        onDismiss = {
+            viewModel.clearError()
+        }
     )
 }
