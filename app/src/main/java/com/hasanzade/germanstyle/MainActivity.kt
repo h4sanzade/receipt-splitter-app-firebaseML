@@ -41,10 +41,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-    override fun onResume() {
-        super.onResume()
-    }
 }
 
 @Composable
@@ -92,6 +88,14 @@ fun ReceiptSplitterAppWithNavigation(
         errorMessage = state.errorMessage,
         onDismiss = {
             viewModel.clearError()
+        }
+    )
+
+    ReceiptSplitterApp(
+        viewModel = viewModel,
+        hasCameraPermission = hasCameraPermission,
+        onRequestCameraPermission = {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     )
 }

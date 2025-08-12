@@ -303,7 +303,7 @@ private fun GrandTotalCard(
                 Text(
                     text = FormatUtils.formatCurrency(grandTotal),
                     style = MaterialTheme.typography.displayMedium,
-                    fontWeight = FontWeight.ExtraBold,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
 

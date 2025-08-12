@@ -255,7 +255,10 @@ private fun PremiumInstructionCard() {
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
@@ -286,7 +289,8 @@ private fun PremiumInstructionCard() {
                 text = "Receipt Scanner",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -295,7 +299,8 @@ private fun PremiumInstructionCard() {
                 text = "Position receipt within frame",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
